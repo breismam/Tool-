@@ -1,0 +1,26 @@
+{
+  "name": "nodejsfirebase",
+  "version": "1.0.0",
+  "description": "Aplicación web para la gestión de equipos de medición en laboratorio electrónico",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/breismam/Tool-.git"
+  },
+  "keywords": [
+    "Web",
+    "server",
+    "Gestión",
+    "NodeJs",
+    "Firebase"
+  ],
+  "author": "Breismam Alfonso Rueda Diaz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/breismam/Tool-/issues"
+  },
+  "homepage": "https://github.com/breismam/Tool-#readme"
+}
