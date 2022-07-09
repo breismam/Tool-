@@ -4,7 +4,9 @@ const cors = require("cors");
 const app = express();
 const { config } = require("./Src/Config/index");
 var bodyparser = require("body-parser"); //body-parser es requerido para descomponer el request
-
+const firebase = require("firebase");
+// Required for side-effects
+require("firebase/firestore");
 /**
  * Configuración necesaria para configurar con autenticación la base de datos
  * de firebase con el backend en nodejs.
@@ -114,17 +116,10 @@ app.post("/guardar", (req, res) => {
 });
 
 //--------------------------------- Lectura en la base de datos -------------------------------
-const router = express.Router();
-
-// Get all todos
-app.get("/listar", async(req, res) => {
-  var ref = db.ref("/usuarios/");
-  ref.get(); // Clear all news
-  res.json({ message: "Todos los datos fueron leidos" });
-  console.log(ref.get());
-
-  const users = await db.ref("/usuarios/").get();
-  console.log(res.name);
+var starCountRef = firebase.database().ref('posts/' + postId + '/starCount');
+starCountRef.on('value', (snapshot) => {
+  const data = snapshot.val();
+  updateStarCount(postElement, data);
 });
 
 
