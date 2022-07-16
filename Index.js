@@ -1,12 +1,12 @@
 const express = require("express");
 const firebase = require("firebase-admin");
+// Required for side-effects
+require("firebase/firestore");
 const cors = require("cors");
 const app = express();
 const { config } = require("./Src/Config/index");
 var bodyparser = require("body-parser"); //body-parser es requerido para descomponer el request
-const firebase = require("firebase");
 // Required for side-effects
-require("firebase/firestore");
 /**
  * Configuración necesaria para configurar con autenticación la base de datos
  * de firebase con el backend en nodejs.
@@ -14,8 +14,7 @@ require("firebase/firestore");
  * proyecto/configuracion/cuentasdeservicio/SDK de firebase admin
  */
 // Import the functions you need from the SDKs you need
-const { initializeApp } = require('firebase/app'); 
-//const { getAnalytics } = require('firebase/analytics'); 
+//const { getAnalytics } = require('firebase/analytics');
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -29,9 +28,8 @@ const firebaseConfig = {
   storageBucket: "cursonodejs-f2ad1.appspot.com",
   messagingSenderId: "893557532176",
   appId: "1:893557532176:web:d64cfb721cc653d64f0c95",
-  measurementId: "G-EHN5VJQ920"
+  measurementId: "G-EHN5VJQ920",
 };
-
 // Initialize Firebase
 //const analytics = getAnalytics(app);
 //Ruta de la clave de firebase admin
@@ -48,7 +46,7 @@ var db = admin.database();
  *
  */
 app.use(express.json());
-app.use(express.urlencoded({ extended: true}));
+app.use(express.urlencoded({ extended: true }));
 // Listas de acceso
 app.use(cors());
 app.use(bodyparser.urlencoded({ extended: true }));
@@ -79,28 +77,32 @@ app.post("/signup", async (req, res) => {
   res.json(userResponse);
 });
 //--------------------------------- Comprobación de correcta autenticación-------------------------------
-
-
 app.post("/signin", async (req, res) => {
   const user = {
     email: req.body.email,
     password: req.body.password,
   };
   firebase
-  .auth()
-  .signInWithEmailAndPassword(user.email, user.password)
-  .then((userCredential) => {
-    // Signed in
-    var user = userCredential.user;
-    // ...
-  })
-  .catch((error) => {
-    var errorCode = error.code;
-    var errorMessage = error.message;
-  });
+    .auth()
+    .signInWithEmailAndPassword(user.email, user.password)
+    .then((userCredential) => {
+      // Signed in
+      var user = userCredential.user;
+      // ...
+    })
+    .catch((error) => {
+      var errorCode = error.code;
+      var errorMessage = error.message;
+    });
 });
 
+/**
+ * CRUD con firestore
+ */
+
 //--------------------------------- Escritura en la base de datos -------------------------------
+//escritura en realtime
+/*
 app.post("/guardar", (req, res) => {
   console.log("el archivo fue guardado");
   console.log(
@@ -113,19 +115,39 @@ app.post("/guardar", (req, res) => {
   };
   db.ref("usuarios").push(newUser);
   res.json({ message: "Ok" });
+});*/
+
+// escritura en firestore
+
+app.post("/guardar", (req, res) => {
+  db.collection("users")
+    .add({
+      first: "Ada",
+      last: "Lovelace",
+      born: 1815,
+    })
+    .then((docRef) => {
+      console.log("Document written with ID: ", docRef.id);
+    })
+    .catch((error) => {
+      console.error("Error adding document: ", error);
+    });
 });
 
 //--------------------------------- Lectura en la base de datos -------------------------------
-var starCountRef = firebase.database().ref('posts/' + postId + '/starCount');
-starCountRef.on('value', (snapshot) => {
-  const data = snapshot.val();
-  updateStarCount(postElement, data);
+
+app.get("/listar", (req, res) => {
+  db.collection("users")
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data()}`);
+      });
+    });
+  res.json({ message: "leyendo" });
 });
 
-
 //--------------------------------- Editar en la base de datos -------------------------------
-
-
 
 //------------------------------ Eliminar todo en la base de datos ---------------------------
 app.post("/borrar", (req, res) => {
@@ -133,4 +155,3 @@ app.post("/borrar", (req, res) => {
   ref.remove(); // Clear all news
   res.json({ message: "Todos los datos fueron eliminados" });
 });
-
